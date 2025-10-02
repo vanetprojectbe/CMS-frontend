@@ -5,8 +5,10 @@ import { SystemHealthBar } from '@/components/SystemHealthBar';
 import { ResponseTimer } from '@/components/ResponseTimer';
 import { AccidentAlert } from '@/types/emergency';
 import { initialMockAlerts, mockSystemHealth, generateMockAccident } from '@/lib/mockData';
+import { mockRSUs, mockOBUs } from '@/lib/v2xMockData';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, Radio } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { AlertTriangle, Radio, AlertCircle, Car, Activity } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Index = () => {
@@ -64,6 +66,8 @@ const Index = () => {
 
   const activeAlerts = alerts.filter((a) => a.status === 'new');
   const oldestActiveAlert = activeAlerts.length > 0 ? activeAlerts[activeAlerts.length - 1] : null;
+  const onlineRSUs = mockRSUs.filter(rsu => rsu.status === 'online').length;
+  const activeOBUs = mockOBUs.filter(obu => obu.status === 'active').length;
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -91,7 +95,7 @@ const Index = () => {
                   <p className="text-xs text-muted-foreground uppercase tracking-wide">
                     Response Time
                   </p>
-                  <ResponseTimer startTime={oldestActiveAlert.timestamp} />
+                  <ResponseTimer timestamp={oldestActiveAlert.timestamp} />
                 </div>
               </div>
             )}
@@ -99,8 +103,61 @@ const Index = () => {
         </div>
       </header>
 
-      {/* System Health Bar */}
-      <SystemHealthBar health={systemHealth} />
+      {/* System Health & KPIs */}
+      <div className="px-6 py-4 bg-card/50 border-b border-border">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+          <Card className="p-4 bg-gradient-to-br from-critical/10 to-transparent border-critical/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-muted-foreground mb-1">Active Alerts</div>
+                <div className="text-3xl font-bold font-mono-data">{activeAlerts.length}</div>
+              </div>
+              <AlertCircle className="w-8 h-8 text-critical" />
+            </div>
+          </Card>
+
+          <Card className="p-4 bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-muted-foreground mb-1">Vehicles Online</div>
+                <div className="text-3xl font-bold font-mono-data">{activeOBUs}</div>
+              </div>
+              <Car className="w-8 h-8 text-primary" />
+            </div>
+          </Card>
+
+          <Card className="p-4 bg-gradient-to-br from-success/10 to-transparent border-success/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-muted-foreground mb-1">RSUs Connected</div>
+                <div className="text-3xl font-bold font-mono-data">{onlineRSUs}/{mockRSUs.length}</div>
+              </div>
+              <Activity className="w-8 h-8 text-success" />
+            </div>
+          </Card>
+
+          <Card className="p-4 bg-gradient-to-br from-warning/10 to-transparent border-warning/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-muted-foreground mb-1">Avg Latency</div>
+                <div className="text-3xl font-bold font-mono-data">{systemHealth.databaseLatency}ms</div>
+              </div>
+              <Activity className="w-8 h-8 text-warning" />
+            </div>
+          </Card>
+
+          <Card className="p-4 bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-muted-foreground mb-1">System Health</div>
+                <div className="text-3xl font-bold font-mono-data">{systemHealth.vanetConnectivity}%</div>
+              </div>
+              <Activity className="w-8 h-8 text-primary" />
+            </div>
+          </Card>
+        </div>
+        <SystemHealthBar health={systemHealth} />
+      </div>
 
       {/* New Alert Indicator */}
       {newAlertIndicator && (

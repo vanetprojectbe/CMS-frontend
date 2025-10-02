@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { Clock } from 'lucide-react';
 
 interface ResponseTimerProps {
-  startTime: Date;
+  timestamp: Date;
 }
 
-export const ResponseTimer = ({ startTime }: ResponseTimerProps) => {
+export const ResponseTimer = ({ timestamp }: ResponseTimerProps) => {
+  const startTime = timestamp;
   const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {

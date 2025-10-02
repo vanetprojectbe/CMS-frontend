@@ -6,7 +6,11 @@ const severityColors: Record<SeverityLevel, number> = {
   moderate: 3,
 };
 
-export const generateMockAccident = (id: string): AccidentAlert => {
+// Generate unique accident ID using timestamp + random
+let accidentCounter = 1000;
+
+export const generateMockAccident = (id?: string): AccidentAlert => {
+  const uniqueId = id || `ACC-${Date.now()}-${accidentCounter++}`;
   const severities: SeverityLevel[] = ['critical', 'warning', 'moderate'];
   const severity = severities[Math.floor(Math.random() * severities.length)];
   
@@ -19,7 +23,7 @@ export const generateMockAccident = (id: string): AccidentAlert => {
   ];
 
   return {
-    id,
+    id: uniqueId,
     severity,
     status: 'new',
     location: {
