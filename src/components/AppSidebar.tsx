@@ -2,7 +2,9 @@ import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Map, 
-  ScrollText, 
+  ScrollText,
+  Users,
+  FileText,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -34,6 +36,19 @@ const menuItems = [
   },
 ];
 
+const adminItems = [
+  {
+    title: 'User Management',
+    url: '/admin/users',
+    icon: Users,
+  },
+  {
+    title: 'Audit Logs',
+    url: '/admin/audit-logs',
+    icon: FileText,
+  },
+];
+
 export function AppSidebar() {
   return (
     <Sidebar className="border-r border-border">
@@ -55,6 +70,31 @@ export function AppSidebar() {
                     <NavLink
                       to={item.url}
                       end={item.url === '/'}
+                      className={({ isActive }) =>
+                        isActive
+                          ? 'bg-primary/10 text-primary font-medium'
+                          : 'hover:bg-accent/50'
+                      }
+                    >
+                      <item.icon className="w-4 h-4" />
+                      <span>{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Admin</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {adminItems.map((item) => (
+                <SidebarMenuItem key={item.url}>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to={item.url}
                       className={({ isActive }) =>
                         isActive
                           ? 'bg-primary/10 text-primary font-medium'
