@@ -2,11 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Map, 
-  Radio, 
   ScrollText, 
-  Activity, 
-  Settings, 
-  Shield 
 } from 'lucide-react';
 import {
   Sidebar,
@@ -22,7 +18,7 @@ import {
 
 const menuItems = [
   {
-    title: 'Accident Overview',
+    title: 'Dashboard',
     url: '/',
     icon: LayoutDashboard,
   },
@@ -32,29 +28,9 @@ const menuItems = [
     icon: Map,
   },
   {
-    title: 'RSU/OBU Management',
-    url: '/device-management',
-    icon: Radio,
-  },
-  {
     title: 'Incident Logs',
     url: '/incident-logs',
     icon: ScrollText,
-  },
-  {
-    title: 'System Health',
-    url: '/system-health',
-    icon: Activity,
-  },
-  {
-    title: 'Device Configurations',
-    url: '/device-config',
-    icon: Settings,
-  },
-  {
-    title: 'Admin Panel',
-    url: '/admin',
-    icon: Shield,
   },
 ];
 
