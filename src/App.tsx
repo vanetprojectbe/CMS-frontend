@@ -7,11 +7,7 @@ import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/s
 import { AppSidebar } from "@/components/AppSidebar";
 import Index from "./pages/Index";
 import LiveMap from "./pages/LiveMap";
-import DeviceManagement from "./pages/DeviceManagement";
 import IncidentLogs from "./pages/IncidentLogs";
-import SystemHealth from "./pages/SystemHealth";
-import DeviceConfig from "./pages/DeviceConfig";
-import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
