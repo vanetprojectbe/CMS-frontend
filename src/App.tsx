@@ -8,6 +8,8 @@ import { AppSidebar } from "@/components/AppSidebar";
 import Index from "./pages/Index";
 import LiveMap from "./pages/LiveMap";
 import IncidentLogs from "./pages/IncidentLogs";
+import UserManagement from "./pages/UserManagement";
+import AuditLogs from "./pages/AuditLogs";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
