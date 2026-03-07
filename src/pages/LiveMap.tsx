@@ -1,33 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { EmergencyMap } from '@/components/EmergencyMap';
 import { AccidentAlert } from '@/types/emergency';
-import { initialMockAlerts, generateMockAccident } from '@/lib/mockData';
 
 const LiveMap = () => {
-  const [alerts, setAlerts] = useState<AccidentAlert[]>(initialMockAlerts);
-  const [selectedAlert, setSelectedAlert] = useState<AccidentAlert | null>(null);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (Math.random() > 0.7) {
-        const newAlert = generateMockAccident(`ACC-${Date.now()}`);
-        setAlerts(prev => [newAlert, ...prev].slice(0, 20));
-      }
-    }, 15000);
-
-    return () => clearInterval(interval);
-  }, []);
+  const [alerts] = useState<AccidentAlert[]>([]);
+  const [selectedAlert, setSelectedAlert] = useState<AccidentAlert | undefined>();
 
   return (
-    <div className="h-screen w-full">
-      <div className="h-16 border-b border-border bg-card/50 px-6 flex items-center">
-        <h1 className="text-2xl font-bold">Live Map View</h1>
+    <div className="flex flex-col h-[calc(100vh-3.5rem)]">
+      <div className="h-14 border-b border-border bg-card/50 px-6 flex items-center">
+        <h1 className="text-xl font-bold">Live Map</h1>
         <div className="ml-auto text-sm text-muted-foreground">
           {alerts.length} Active Incidents
         </div>
       </div>
       
-      <div className="h-[calc(100vh-4rem)]">
+      <div className="flex-1">
         <EmergencyMap
           alerts={alerts}
           selectedAlert={selectedAlert}
