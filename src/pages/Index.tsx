@@ -1,19 +1,26 @@
-import { useState } from 'react';
 import { AlertTriagePanel } from '@/components/AlertTriagePanel';
 import { EmergencyMap } from '@/components/EmergencyMap';
 import { AccidentAlert } from '@/types/emergency';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, Car, Activity } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { AlertCircle, Car, Activity, Wifi, WifiOff } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAlerts } from '@/hooks/useAlerts';
+import { useState } from 'react';
 
 const Index = () => {
-  const [alerts] = useState<AccidentAlert[]>([]);
+  const { alerts, isConnected, isLoading, error, dispatchAlert } = useAlerts();
   const [selectedAlert, setSelectedAlert] = useState<AccidentAlert | undefined>();
 
-  const handleDispatch = (alertId: string) => {
-    toast.success('Emergency Response Dispatched', {
-      description: `Units dispatched to ${alerts.find(a => a.id === alertId)?.address}`,
-    });
+  const handleDispatch = async (alertId: string) => {
+    try {
+      await dispatchAlert(alertId);
+      toast.success('Emergency Response Dispatched', {
+        description: `Units dispatched to ${alerts.find(a => a.id === alertId)?.address}`,
+      });
+    } catch {
+      toast.error('Failed to dispatch', { description: 'Check backend connection.' });
+    }
   };
 
   const handleSelectAlert = (alert: AccidentAlert) => {
@@ -28,6 +35,18 @@ const Index = () => {
       {/* KPI Bar */}
       <div className="px-4 py-3 border-b border-border bg-card/50">
         <div className="flex items-center gap-4 flex-wrap">
+          <div className="flex items-center gap-2">
+            {isConnected ? (
+              <Badge variant="outline" className="border-success/30 text-success gap-1">
+                <Wifi className="w-3 h-3" /> Live
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="border-warning/30 text-warning gap-1">
+                <WifiOff className="w-3 h-3" /> Disconnected
+              </Badge>
+            )}
+          </div>
+          <div className="w-px h-6 bg-border" />
           <div className="flex items-center gap-2">
             <AlertCircle className="w-5 h-5 text-critical" />
             <span className="text-sm text-muted-foreground">Active:</span>
@@ -56,6 +75,9 @@ const Index = () => {
             </Button>
           </div>
         </div>
+        {error && (
+          <p className="text-xs text-warning mt-2">⚠ {error}</p>
+        )}
       </div>
 
       {/* Main Content */}
