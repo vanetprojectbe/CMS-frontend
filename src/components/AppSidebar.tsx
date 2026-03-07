@@ -36,6 +36,19 @@ const menuItems = [
   },
 ];
 
+const adminItems = [
+  {
+    title: 'User Management',
+    url: '/admin/users',
+    icon: Users,
+  },
+  {
+    title: 'Audit Logs',
+    url: '/admin/audit-logs',
+    icon: FileText,
+  },
+];
+
 export function AppSidebar() {
   return (
     <Sidebar className="border-r border-border">
