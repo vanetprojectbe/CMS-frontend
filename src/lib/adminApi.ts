@@ -1,48 +1,18 @@
 import { AdminUser, AuditLogEntry, UserRole } from '@/types/admin';
-
-/**
- * Admin API service — connects to your MongoDB backend.
- * Replace BASE_URL with your actual API endpoint.
- */
-const BASE_URL = '/api/admin';
+import { api } from '@/lib/apiClient';
 
 // ── Users ──────────────────────────────────────────────
 
-export async function fetchUsers(): Promise<AdminUser[]> {
-  const res = await fetch(`${BASE_URL}/users`);
-  if (!res.ok) throw new Error('Failed to fetch users');
-  return res.json();
-}
+export const fetchUsers = () => api.get<AdminUser[]>('/admin/users');
 
-export async function updateUserRole(userId: string, role: UserRole): Promise<AdminUser> {
-  const res = await fetch(`${BASE_URL}/users/${userId}/role`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ role }),
-  });
-  if (!res.ok) throw new Error('Failed to update user role');
-  return res.json();
-}
+export const updateUserRole = (userId: string, role: UserRole) =>
+  api.patch<AdminUser>(`/admin/users/${userId}/role`, { role });
 
-export async function toggleUserStatus(userId: string, enabled: boolean): Promise<AdminUser> {
-  const res = await fetch(`${BASE_URL}/users/${userId}/status`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ status: enabled ? 'active' : 'disabled' }),
-  });
-  if (!res.ok) throw new Error('Failed to update user status');
-  return res.json();
-}
+export const toggleUserStatus = (userId: string, enabled: boolean) =>
+  api.patch<AdminUser>(`/admin/users/${userId}/status`, { status: enabled ? 'active' : 'disabled' });
 
-export async function createUser(data: { email: string; name: string; role: UserRole }): Promise<AdminUser> {
-  const res = await fetch(`${BASE_URL}/users`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error('Failed to create user');
-  return res.json();
-}
+export const createUser = (data: { email: string; name: string; role: UserRole }) =>
+  api.post<AdminUser>('/admin/users', data);
 
 // ── Audit Logs ─────────────────────────────────────────
 
@@ -58,7 +28,5 @@ export async function fetchAuditLogs(params?: {
   if (params?.limit) query.set('limit', String(params.limit));
   if (params?.offset) query.set('offset', String(params.offset));
 
-  const res = await fetch(`${BASE_URL}/audit-logs?${query}`);
-  if (!res.ok) throw new Error('Failed to fetch audit logs');
-  return res.json();
+  return api.get<AuditLogEntry[]>(`/admin/audit-logs?${query}`);
 }
