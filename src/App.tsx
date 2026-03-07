@@ -28,11 +28,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/live-map" element={<LiveMap />} />
-                <Route path="/device-management" element={<DeviceManagement />} />
                 <Route path="/incident-logs" element={<IncidentLogs />} />
-                <Route path="/system-health" element={<SystemHealth />} />
-                <Route path="/device-config" element={<DeviceConfig />} />
-                <Route path="/admin" element={<Admin />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </SidebarInset>
