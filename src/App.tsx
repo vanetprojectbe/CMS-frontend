@@ -18,17 +18,21 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <SidebarProvider>
-          <div className="flex min-h-screen w-full">
-            <AppSidebar />
-            <SidebarInset className="flex-1">
-              <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4">
-                <SidebarTrigger />
-              </header>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <SidebarProvider>
+            <div className="flex min-h-screen w-full">
+              <AppSidebar />
+              <SidebarInset className="flex-1">
+                <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4">
+                  <SidebarTrigger />
+                  <div className="ml-auto">
+                    <ThemeToggle />
+                  </div>
+                </header>
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/live-map" element={<LiveMap />} />
