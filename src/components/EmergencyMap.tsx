@@ -1,5 +1,4 @@
-import { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { AccidentAlert } from '@/types/emergency';
@@ -10,78 +9,101 @@ interface EmergencyMapProps {
   onSelectAlert: (alert: AccidentAlert) => void;
 }
 
-const createSeverityIcon = (severity: AccidentAlert['severity'], isSelected: boolean) => {
-  const colors: Record<string, string> = {
-    critical: '#ef4444',
-    warning: '#f59e0b',
-    moderate: '#6b7280',
-  };
-  const color = colors[severity] || '#6b7280';
-  const size = isSelected ? 18 : 12;
-  const border = isSelected ? 4 : 3;
-
-  return L.divIcon({
-    className: '',
-    html: `<div style="
-      width: ${size}px; height: ${size}px;
-      background: ${color};
-      border: ${border}px solid white;
-      border-radius: 50%;
-      box-shadow: 0 0 8px ${color}88;
-    "></div>`,
-    iconSize: [size + border * 2, size + border * 2],
-    iconAnchor: [(size + border * 2) / 2, (size + border * 2) / 2],
-  });
-};
-
-const FlyToAlert = ({ alert }: { alert?: AccidentAlert }) => {
-  const map = useMap();
-  useEffect(() => {
-    if (alert) {
-      map.flyTo([alert.location.lat, alert.location.lng], 15, { duration: 0.8 });
-    }
-  }, [alert, map]);
-  return null;
+const getSeverityColor = (severity: AccidentAlert['severity']) => {
+  switch (severity) {
+    case 'critical': return '#ef4444';
+    case 'warning': return '#f59e0b';
+    default: return '#6b7280';
+  }
 };
 
 export const EmergencyMap = ({ alerts, selectedAlert, onSelectAlert }: EmergencyMapProps) => {
-  const center: [number, number] = [40.7580, -73.9855];
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
+  const markersRef = useRef<L.LayerGroup | null>(null);
+
+  // Initialize map
+  useEffect(() => {
+    if (!mapRef.current || mapInstanceRef.current) return;
+
+    const map = L.map(mapRef.current, {
+      center: [40.7580, -73.9855],
+      zoom: 13,
+      zoomControl: true,
+    });
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+
+    markersRef.current = L.layerGroup().addTo(map);
+    mapInstanceRef.current = map;
+
+    return () => {
+      map.remove();
+      mapInstanceRef.current = null;
+    };
+  }, []);
+
+  // Update markers when alerts change
+  useEffect(() => {
+    if (!markersRef.current || !mapInstanceRef.current) return;
+
+    markersRef.current.clearLayers();
+
+    alerts.forEach((alert) => {
+      const color = getSeverityColor(alert.severity);
+      const isSelected = selectedAlert?.id === alert.id;
+      const size = isSelected ? 18 : 12;
+      const border = isSelected ? 4 : 3;
+
+      const icon = L.divIcon({
+        className: '',
+        html: `<div style="
+          width: ${size}px; height: ${size}px;
+          background: ${color};
+          border: ${border}px solid white;
+          border-radius: 50%;
+          box-shadow: 0 0 8px ${color}88;
+          cursor: pointer;
+        "></div>`,
+        iconSize: [size + border * 2, size + border * 2],
+        iconAnchor: [(size + border * 2) / 2, (size + border * 2) / 2],
+      });
+
+      const marker = L.marker([alert.location.lat, alert.location.lng], { icon })
+        .addTo(markersRef.current!);
+
+      marker.bindPopup(`
+        <div style="font-size: 13px; min-width: 180px;">
+          <div style="font-weight: bold; font-size: 15px; margin-bottom: 4px;">${alert.id}</div>
+          <div><strong>Location:</strong> ${alert.address}</div>
+          <div><strong>Vehicle:</strong> ${alert.vehicle.id} (${alert.vehicle.type})</div>
+          <div><strong>Speed:</strong> ${alert.vehicle.speed} mph</div>
+          <div><strong>Severity:</strong> <span style="color: ${color}">${alert.severity}</span></div>
+          <div><strong>Status:</strong> ${alert.status}</div>
+          <div><strong>Time:</strong> ${alert.timestamp.toLocaleTimeString()}</div>
+        </div>
+      `);
+
+      marker.on('click', () => onSelectAlert(alert));
+    });
+  }, [alerts, selectedAlert, onSelectAlert]);
+
+  // Fly to selected alert
+  useEffect(() => {
+    if (selectedAlert && mapInstanceRef.current) {
+      mapInstanceRef.current.flyTo(
+        [selectedAlert.location.lat, selectedAlert.location.lng],
+        15,
+        { duration: 0.8 }
+      );
+    }
+  }, [selectedAlert]);
 
   return (
     <div className="relative w-full h-full rounded-lg overflow-hidden border border-border">
-      <MapContainer
-        center={center}
-        zoom={13}
-        className="w-full h-full z-0"
-        zoomControl={true}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-        />
-        <FlyToAlert alert={selectedAlert} />
-
-        {alerts.map((alert) => (
-          <Marker
-            key={alert.id}
-            position={[alert.location.lat, alert.location.lng]}
-            icon={createSeverityIcon(alert.severity, selectedAlert?.id === alert.id)}
-            eventHandlers={{ click: () => onSelectAlert(alert) }}
-          >
-            <Popup>
-              <div className="text-sm min-w-[180px]">
-                <div className="font-bold text-base mb-1">{alert.id}</div>
-                <div className="mb-1"><strong>Location:</strong> {alert.address}</div>
-                <div><strong>Vehicle:</strong> {alert.vehicle.id} ({alert.vehicle.type})</div>
-                <div><strong>Speed:</strong> {alert.vehicle.speed} mph</div>
-                <div><strong>Severity:</strong> <span style={{ color: alert.severity === 'critical' ? '#ef4444' : alert.severity === 'warning' ? '#f59e0b' : '#6b7280' }}>{alert.severity}</span></div>
-                <div><strong>Status:</strong> {alert.status}</div>
-                <div><strong>Time:</strong> {alert.timestamp.toLocaleTimeString()}</div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
+      <div ref={mapRef} className="w-full h-full" />
 
       {/* Legend */}
       <div className="absolute top-4 right-4 z-[1000] bg-card/95 backdrop-blur-sm border border-border rounded-lg p-3 shadow-lg">
