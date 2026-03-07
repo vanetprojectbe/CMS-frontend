@@ -2,7 +2,9 @@ import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Map, 
-  ScrollText, 
+  ScrollText,
+  Users,
+  FileText,
 } from 'lucide-react';
 import {
   Sidebar,
