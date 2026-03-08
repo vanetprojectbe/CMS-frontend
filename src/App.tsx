@@ -56,6 +56,7 @@ const App = () => (
                       <Route path="/" element={<Index />} />
                       <Route path="/live-map" element={<LiveMap />} />
                       <Route path="/incident-logs" element={<IncidentLogs />} />
+                      <Route path="/communications" element={<Communications />} />
                       <Route path="/admin/users" element={<UserManagement />} />
                       <Route path="/admin/audit-logs" element={<AuditLogs />} />
                       <Route path="*" element={<NotFound />} />

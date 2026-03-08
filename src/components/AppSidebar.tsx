@@ -37,6 +37,11 @@ const menuItems = [
     url: '/incident-logs',
     icon: ScrollText,
   },
+  {
+    title: 'Communications',
+    url: '/communications',
+    icon: Radio,
+  },
 ];
 
 const adminItems = [
