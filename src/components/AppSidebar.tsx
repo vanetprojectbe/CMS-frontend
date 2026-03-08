@@ -52,6 +52,8 @@ const adminItems = [
 ];
 
 export function AppSidebar() {
+  const { user, logout } = useAuth();
+
   return (
     <Sidebar className="border-r border-border">
       <SidebarHeader className="border-b border-border p-4">
@@ -113,6 +115,24 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      <div className="mt-auto border-t border-border p-3">
+        {user && (
+          <div className="flex items-center justify-between">
+            <div className="truncate">
+              <p className="text-sm font-medium truncate">{user.name}</p>
+              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+            </div>
+            <button
+              onClick={logout}
+              className="ml-2 p-2 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+              title="Sign out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+      </div>
     </Sidebar>
   );
 }
