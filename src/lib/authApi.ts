@@ -1,9 +1,8 @@
-import { api, API_BASE_URL } from '@/lib/apiClient';
+import { api } from '@/lib/apiClient';
 
 export interface AuthUser {
   id: string;
-  email: string;
-  name: string;
+  username: string;
   role: string;
 }
 
@@ -14,8 +13,8 @@ interface LoginResponse {
 
 export const authApi = {
   login: (username: string, password: string) =>
-  api.post<LoginResponse>('/auth/login', { username, password }),
-  
+    api.post<LoginResponse>('/auth/login', { username, password }),
+
   logout: () => api.post<void>('/auth/logout', {}),
 
   me: () => api.get<AuthUser>('/auth/me'),
