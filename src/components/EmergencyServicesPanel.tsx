@@ -45,11 +45,11 @@ const serviceColors: Record<ServiceType, string> = {
 
 const statusConfig: Record<NotificationStatus, { label: string; variant: 'default' | 'critical' | 'warning' | 'success' | 'outline' }> = {
   pending: { label: 'Pending', variant: 'outline' },
-  sent: { label: 'Sent', variant: 'warning' },
+  sent: { label: 'Auto-Notified', variant: 'warning' },
   acknowledged: { label: 'Acknowledged', variant: 'default' },
   en_route: { label: 'En Route', variant: 'success' },
   on_scene: { label: 'On Scene', variant: 'success' },
-  failed: { label: 'Failed', variant: 'critical' },
+  failed: { label: 'Failed — Retry', variant: 'critical' },
 };
 
 export const EmergencyServicesPanel = ({ alertId }: EmergencyServicesPanelProps) => {
