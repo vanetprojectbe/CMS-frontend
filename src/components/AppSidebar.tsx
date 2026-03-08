@@ -6,6 +6,7 @@ import {
   Users,
   FileText,
   LogOut,
+  Radio,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -35,6 +36,11 @@ const menuItems = [
     title: 'Incident Logs',
     url: '/incident-logs',
     icon: ScrollText,
+  },
+  {
+    title: 'Communications',
+    url: '/communications',
+    icon: Radio,
   },
 ];
 

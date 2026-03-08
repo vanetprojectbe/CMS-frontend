@@ -9,11 +9,13 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { NotificationCenter } from "@/components/NotificationCenter";
 import Index from "./pages/Index";
 import LiveMap from "./pages/LiveMap";
 import IncidentLogs from "./pages/IncidentLogs";
 import UserManagement from "./pages/UserManagement";
 import AuditLogs from "./pages/AuditLogs";
+import Communications from "./pages/Communications";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -26,7 +28,8 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => (
       <SidebarInset className="flex-1">
         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4">
           <SidebarTrigger />
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
+            <NotificationCenter />
             <ThemeToggle />
           </div>
         </header>
@@ -53,6 +56,7 @@ const App = () => (
                       <Route path="/" element={<Index />} />
                       <Route path="/live-map" element={<LiveMap />} />
                       <Route path="/incident-logs" element={<IncidentLogs />} />
+                      <Route path="/communications" element={<Communications />} />
                       <Route path="/admin/users" element={<UserManagement />} />
                       <Route path="/admin/audit-logs" element={<AuditLogs />} />
                       <Route path="*" element={<NotFound />} />
