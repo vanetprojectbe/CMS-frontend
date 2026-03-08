@@ -1,5 +1,6 @@
 import { AlertTriagePanel } from '@/components/AlertTriagePanel';
 import { EmergencyMap } from '@/components/EmergencyMap';
+import { EmergencyServicesPanel } from '@/components/EmergencyServicesPanel';
 import { AccidentAlert } from '@/types/emergency';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
