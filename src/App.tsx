@@ -14,6 +14,7 @@ import LiveMap from "./pages/LiveMap";
 import IncidentLogs from "./pages/IncidentLogs";
 import UserManagement from "./pages/UserManagement";
 import AuditLogs from "./pages/AuditLogs";
+import Communications from "./pages/Communications";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
