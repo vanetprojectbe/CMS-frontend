@@ -5,7 +5,9 @@ import {
   ScrollText,
   Users,
   FileText,
+  LogOut,
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   Sidebar,
   SidebarContent,

@@ -14,11 +14,13 @@ interface RequestOptions extends Omit<RequestInit, 'body'> {
 
 async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { body, headers, ...rest } = options;
+  const token = localStorage.getItem('auth_token');
 
   const res = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...rest,
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...headers,
     },
     ...(body !== undefined ? { body: JSON.stringify(body) } : {}),

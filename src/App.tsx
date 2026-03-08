@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { ThemeProvider } from "next-themes";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import Index from "./pages/Index";
@@ -12,40 +14,56 @@ import LiveMap from "./pages/LiveMap";
 import IncidentLogs from "./pages/IncidentLogs";
 import UserManagement from "./pages/UserManagement";
 import AuditLogs from "./pages/AuditLogs";
+import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+const DashboardLayout = ({ children }: { children: React.ReactNode }) => (
+  <SidebarProvider>
+    <div className="flex min-h-screen w-full">
+      <AppSidebar />
+      <SidebarInset className="flex-1">
+        <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4">
+          <SidebarTrigger />
+          <div className="ml-auto">
+            <ThemeToggle />
+          </div>
+        </header>
+        {children}
+      </SidebarInset>
+    </div>
+  </SidebarProvider>
+);
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <SidebarProvider>
-            <div className="flex min-h-screen w-full">
-              <AppSidebar />
-              <SidebarInset className="flex-1">
-                <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4">
-                  <SidebarTrigger />
-                  <div className="ml-auto">
-                    <ThemeToggle />
-                  </div>
-                </header>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/live-map" element={<LiveMap />} />
-                <Route path="/incident-logs" element={<IncidentLogs />} />
-                <Route path="/admin/users" element={<UserManagement />} />
-                <Route path="/admin/audit-logs" element={<AuditLogs />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </SidebarInset>
-          </div>
-          </SidebarProvider>
-        </BrowserRouter>
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="*" element={
+                <ProtectedRoute>
+                  <DashboardLayout>
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/live-map" element={<LiveMap />} />
+                      <Route path="/incident-logs" element={<IncidentLogs />} />
+                      <Route path="/admin/users" element={<UserManagement />} />
+                      <Route path="/admin/audit-logs" element={<AuditLogs />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </DashboardLayout>
+                </ProtectedRoute>
+              } />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );
