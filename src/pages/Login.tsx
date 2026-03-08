@@ -73,6 +73,7 @@ const Login = () => {
             <p className="text-xs text-muted-foreground font-mono-data">Email: admin@v2x.com</p>
             <p className="text-xs text-muted-foreground font-mono-data">Password: admin123</p>
           </div>
+        </CardContent>
       </Card>
     </div>
   );
