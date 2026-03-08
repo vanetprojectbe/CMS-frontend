@@ -25,7 +25,7 @@ export const fetchIncidents = (params?: {
   if (params?.limit) query.set('limit', String(params.limit));
   if (params?.offset) query.set('offset', String(params.offset));
 
-  return api.get<IncidentLog[]>(`/incidents?${query}`);
+  return api.get<IncidentLog[]>(`/accidents?${query}`);
 };
 
 export const exportIncidentsCsv = () =>
