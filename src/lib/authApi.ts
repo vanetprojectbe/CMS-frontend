@@ -13,9 +13,9 @@ interface LoginResponse {
 }
 
 export const authApi = {
-  login: (email: string, password: string) =>
-    api.post<LoginResponse>('/auth/login', { email, password }),
-
+  login: (username: string, password: string) =>
+  api.post<LoginResponse>('/auth/login', { username, password }),
+  
   logout: () => api.post<void>('/auth/logout', {}),
 
   me: () => api.get<AuthUser>('/auth/me'),
