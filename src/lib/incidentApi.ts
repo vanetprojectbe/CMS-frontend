@@ -29,4 +29,4 @@ export const fetchIncidents = (params?: {
 };
 
 export const exportIncidentsCsv = () =>
-  `${(import.meta.env.VITE_API_URL || '/api')}/incidents/export?format=csv`;
+  `${(import.meta.env.VITE_API_URL || '/api')}/accidents/export?format=csv`
