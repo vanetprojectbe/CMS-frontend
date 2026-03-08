@@ -57,11 +57,27 @@ export function useAlerts() {
         setAlerts(prev => {
           switch (msg.type) {
             case 'alert.new':
+              toast.info('🚨 New Accident Detected', {
+                description: `${alert.address} — Nearest hospital, police & fire station auto-notified.`,
+                duration: 8000,
+              });
               return [alert, ...prev];
             case 'alert.updated':
               return prev.map(a => a.id === alert.id ? alert : a);
             case 'alert.resolved':
               return prev.filter(a => a.id !== alert.id);
+            case 'services.notified':
+              toast.success('✅ Emergency Services Notified', {
+                description: `${msg.data.services?.length || 'All'} services alerted for incident ${msg.data.alertId}`,
+                duration: 6000,
+              });
+              return prev;
+            case 'service.acknowledged':
+              toast.success(`${msg.data.serviceName} acknowledged`, {
+                description: `ETA: ${msg.data.eta} min — ${msg.data.alertId}`,
+                duration: 5000,
+              });
+              return prev;
             default:
               return prev;
           }
