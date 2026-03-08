@@ -83,12 +83,19 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="flex-1 flex overflow-hidden">
-        <div className="flex-1 p-4">
-          <EmergencyMap
-            alerts={alerts}
-            selectedAlert={selectedAlert}
-            onSelectAlert={handleSelectAlert}
-          />
+        <div className="flex-1 flex flex-col p-4 gap-4 overflow-hidden">
+          <div className="flex-1">
+            <EmergencyMap
+              alerts={alerts}
+              selectedAlert={selectedAlert}
+              onSelectAlert={handleSelectAlert}
+            />
+          </div>
+          {selectedAlert && (
+            <div className="h-[200px] overflow-auto border border-border rounded-lg bg-card/50 p-3">
+              <EmergencyServicesPanel alertId={selectedAlert.id} />
+            </div>
+          )}
         </div>
         <aside className="w-[380px] border-l border-border bg-card/50 overflow-hidden">
           <AlertTriagePanel
