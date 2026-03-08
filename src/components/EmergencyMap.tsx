@@ -165,6 +165,25 @@ export const EmergencyMap = ({ alerts, selectedAlert, onSelectAlert }: Emergency
     <div className="relative w-full h-full rounded-lg overflow-hidden border border-border">
       <div ref={mapRef} className="w-full h-full" />
 
+      {/* Locate Me button */}
+      <button
+        onClick={locateUser}
+        disabled={locating}
+        className="absolute bottom-4 left-4 z-[1000] bg-card/95 backdrop-blur-sm border border-border rounded-lg px-3 py-2 shadow-lg text-xs font-medium hover:bg-accent/20 transition-colors flex items-center gap-2 disabled:opacity-50"
+        title="Detect my location"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={locating ? 'animate-spin' : ''}>
+          <circle cx="12" cy="12" r="3" /><path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
+        </svg>
+        {locating ? 'Locating…' : 'My Location'}
+      </button>
+
+      {locationError && (
+        <div className="absolute bottom-4 left-40 z-[1000] bg-card/95 border border-warning/30 rounded-lg px-3 py-2 text-xs text-warning shadow-lg">
+          ⚠ {locationError}
+        </div>
+      )}
+
       {/* Legend */}
       <div className="absolute top-4 right-4 z-[1000] bg-card/95 backdrop-blur-sm border border-border rounded-lg p-3 shadow-lg">
         <h4 className="text-xs font-bold mb-2 uppercase tracking-wide">Legend</h4>
