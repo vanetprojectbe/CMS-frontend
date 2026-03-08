@@ -105,6 +105,62 @@ export const EmergencyMap = ({ alerts, selectedAlert, onSelectAlert }: Emergency
     }
   }, [selectedAlert]);
 
+  // Locate user
+  const locateUser = () => {
+    if (!mapInstanceRef.current || !navigator.geolocation) {
+      setLocationError('Geolocation not supported');
+      return;
+    }
+    setLocating(true);
+    setLocationError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude, accuracy } = pos.coords;
+        const map = mapInstanceRef.current!;
+
+        // Remove old markers
+        if (locationMarkerRef.current) map.removeLayer(locationMarkerRef.current);
+        if (locationCircleRef.current) map.removeLayer(locationCircleRef.current);
+
+        // Accuracy circle
+        locationCircleRef.current = L.circle([latitude, longitude], {
+          radius: accuracy,
+          color: 'hsl(217, 91%, 60%)',
+          fillColor: 'hsl(217, 91%, 60%)',
+          fillOpacity: 0.1,
+          weight: 1,
+        }).addTo(map);
+
+        // User dot
+        const icon = L.divIcon({
+          className: '',
+          html: `<div style="
+            width: 16px; height: 16px;
+            background: hsl(217, 91%, 60%);
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 12px hsl(217, 91%, 60%, 0.6);
+          "></div>`,
+          iconSize: [22, 22],
+          iconAnchor: [11, 11],
+        });
+
+        locationMarkerRef.current = L.marker([latitude, longitude], { icon })
+          .bindPopup('<strong>Your Location</strong>')
+          .addTo(map);
+
+        map.flyTo([latitude, longitude], 14, { duration: 1 });
+        setLocating(false);
+      },
+      (err) => {
+        setLocationError(err.message);
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
   return (
     <div className="relative w-full h-full rounded-lg overflow-hidden border border-border">
       <div ref={mapRef} className="w-full h-full" />
