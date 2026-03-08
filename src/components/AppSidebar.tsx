@@ -6,6 +6,7 @@ import {
   Users,
   FileText,
   LogOut,
+  Radio,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import {
