@@ -1,6 +1,18 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { authApi, AuthUser } from '@/lib/authApi';
 
+const DEMO_CREDENTIALS = {
+  email: 'admin@v2x.com',
+  password: 'admin123',
+  user: {
+    id: 'demo-admin-001',
+    email: 'admin@v2x.com',
+    name: 'Admin User',
+    role: 'admin',
+  } as AuthUser,
+  token: 'demo-token-admin',
+};
+
 interface AuthContextType {
   user: AuthUser | null;
   token: string | null;
@@ -19,6 +31,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // On mount, validate existing token
   useEffect(() => {
     if (!token) return;
+    // If demo token, restore demo user
+    if (token === DEMO_CREDENTIALS.token) {
+      setUser(DEMO_CREDENTIALS.user);
+      setIsLoading(false);
+      return;
+    }
     authApi.me()
       .then(setUser)
       .catch(() => {
@@ -29,6 +47,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
+    // Check demo credentials first
+    if (email === DEMO_CREDENTIALS.email && password === DEMO_CREDENTIALS.password) {
+      localStorage.setItem('auth_token', DEMO_CREDENTIALS.token);
+      setToken(DEMO_CREDENTIALS.token);
+      setUser(DEMO_CREDENTIALS.user);
+      return;
+    }
+
+    // Try backend login
     const res = await authApi.login(email, password);
     localStorage.setItem('auth_token', res.token);
     setToken(res.token);
@@ -36,11 +63,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
-    authApi.logout().catch(() => {});
+    if (token !== DEMO_CREDENTIALS.token) {
+      authApi.logout().catch(() => {});
+    }
     localStorage.removeItem('auth_token');
     setToken(null);
     setUser(null);
-  }, []);
+  }, [token]);
 
   return (
     <AuthContext.Provider value={{ user, token, isLoading, login, logout }}>

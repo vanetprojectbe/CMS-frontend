@@ -68,7 +68,11 @@ const Login = () => {
               {loading ? 'Signing in…' : 'Sign In'}
             </Button>
           </form>
-        </CardContent>
+          <div className="mt-4 p-3 rounded-md bg-muted/50 border border-border">
+            <p className="text-xs font-semibold text-muted-foreground mb-1">Default Admin Credentials</p>
+            <p className="text-xs text-muted-foreground font-mono-data">Email: admin@v2x.com</p>
+            <p className="text-xs text-muted-foreground font-mono-data">Password: admin123</p>
+          </div>
       </Card>
     </div>
   );
