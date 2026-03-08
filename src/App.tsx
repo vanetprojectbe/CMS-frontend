@@ -9,6 +9,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { NotificationCenter } from "@/components/NotificationCenter";
 import Index from "./pages/Index";
 import LiveMap from "./pages/LiveMap";
 import IncidentLogs from "./pages/IncidentLogs";
