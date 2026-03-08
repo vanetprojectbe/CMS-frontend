@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { AccidentAlert } from '@/types/emergency';
@@ -21,6 +21,10 @@ export const EmergencyMap = ({ alerts, selectedAlert, onSelectAlert }: Emergency
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.LayerGroup | null>(null);
+  const locationMarkerRef = useRef<L.Marker | null>(null);
+  const locationCircleRef = useRef<L.Circle | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
 
   // Initialize map
   useEffect(() => {
@@ -101,9 +105,84 @@ export const EmergencyMap = ({ alerts, selectedAlert, onSelectAlert }: Emergency
     }
   }, [selectedAlert]);
 
+  // Locate user
+  const locateUser = () => {
+    if (!mapInstanceRef.current || !navigator.geolocation) {
+      setLocationError('Geolocation not supported');
+      return;
+    }
+    setLocating(true);
+    setLocationError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude, accuracy } = pos.coords;
+        const map = mapInstanceRef.current!;
+
+        // Remove old markers
+        if (locationMarkerRef.current) map.removeLayer(locationMarkerRef.current);
+        if (locationCircleRef.current) map.removeLayer(locationCircleRef.current);
+
+        // Accuracy circle
+        locationCircleRef.current = L.circle([latitude, longitude], {
+          radius: accuracy,
+          color: 'hsl(217, 91%, 60%)',
+          fillColor: 'hsl(217, 91%, 60%)',
+          fillOpacity: 0.1,
+          weight: 1,
+        }).addTo(map);
+
+        // User dot
+        const icon = L.divIcon({
+          className: '',
+          html: `<div style="
+            width: 16px; height: 16px;
+            background: hsl(217, 91%, 60%);
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 12px hsl(217, 91%, 60%, 0.6);
+          "></div>`,
+          iconSize: [22, 22],
+          iconAnchor: [11, 11],
+        });
+
+        locationMarkerRef.current = L.marker([latitude, longitude], { icon })
+          .bindPopup('<strong>Your Location</strong>')
+          .addTo(map);
+
+        map.flyTo([latitude, longitude], 14, { duration: 1 });
+        setLocating(false);
+      },
+      (err) => {
+        setLocationError(err.message);
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
   return (
     <div className="relative w-full h-full rounded-lg overflow-hidden border border-border">
       <div ref={mapRef} className="w-full h-full" />
+
+      {/* Locate Me button */}
+      <button
+        onClick={locateUser}
+        disabled={locating}
+        className="absolute bottom-4 left-4 z-[1000] bg-card/95 backdrop-blur-sm border border-border rounded-lg px-3 py-2 shadow-lg text-xs font-medium hover:bg-accent/20 transition-colors flex items-center gap-2 disabled:opacity-50"
+        title="Detect my location"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={locating ? 'animate-spin' : ''}>
+          <circle cx="12" cy="12" r="3" /><path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
+        </svg>
+        {locating ? 'Locating…' : 'My Location'}
+      </button>
+
+      {locationError && (
+        <div className="absolute bottom-4 left-40 z-[1000] bg-card/95 border border-warning/30 rounded-lg px-3 py-2 text-xs text-warning shadow-lg">
+          ⚠ {locationError}
+        </div>
+      )}
 
       {/* Legend */}
       <div className="absolute top-4 right-4 z-[1000] bg-card/95 backdrop-blur-sm border border-border rounded-lg p-3 shadow-lg">
