@@ -28,7 +28,8 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => (
       <SidebarInset className="flex-1">
         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4">
           <SidebarTrigger />
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
+            <NotificationCenter />
             <ThemeToggle />
           </div>
         </header>
