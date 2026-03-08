@@ -21,6 +21,10 @@ export const EmergencyMap = ({ alerts, selectedAlert, onSelectAlert }: Emergency
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.LayerGroup | null>(null);
+  const locationMarkerRef = useRef<L.Marker | null>(null);
+  const locationCircleRef = useRef<L.Circle | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
 
   // Initialize map
   useEffect(() => {
