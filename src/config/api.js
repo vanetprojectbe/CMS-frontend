@@ -6,7 +6,7 @@ export const API = {
   login:     `${API_BASE}/api/auth/login`,
   register:  `${API_BASE}/api/auth/register`,
   incidents: `${API_BASE}/api/accident`,
-  accident: `${API_BASE}/api/accident`,
+  accident:  `${API_BASE}/api/accident`,
   alerts:    `${API_BASE}/api/alerts`,
   rsu:       `${API_BASE}/api/rsu`,
   users:     `${API_BASE}/api/admin/users`,
