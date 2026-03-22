@@ -7,9 +7,9 @@ export const API = {
   login:    `${API_BASE}/api/auth/login`,
   register: `${API_BASE}/api/auth/register`,
 
-  // Accidents (backend uses "accidents" not "incidents")
-  incidents:  `${API_BASE}/api/accidents`,   // ← map "incidents" → "/api/accidents"
-  accidents:  `${API_BASE}/api/accidents`,   // ← keep both so nothing breaks
+  // accident (backend uses "accident" not "incidents")
+  incidents:  `${API_BASE}/api/accident`,   // ← map "incidents" → "/api/accident"
+  accident:  `${API_BASE}/api/accident`,   // ← keep both so nothing breaks
 
   // Alerts
   alerts:   `${API_BASE}/api/alerts`,
