@@ -31,8 +31,8 @@ export const NotificationCenter = () => {
   const load = () => {
     setLoading(true);
     fetchNotifications()
-      .then(setNotifications)
-      .catch(() => {})
+      .then((data) => setNotifications(data || [])) // ✅ safe fallback
+      .catch(() => setNotifications([])) // ✅ prevent crash
       .finally(() => setLoading(false));
   };
 
@@ -45,7 +45,9 @@ export const NotificationCenter = () => {
   const handleMarkRead = async (id: string) => {
     try {
       await markNotificationRead(id);
-      setNotifications(prev => prev.map(n => (n.id === id ? { ...n, read: true } : n)));
+      setNotifications(prev =>
+        prev.map(n => (n.id === id ? { ...n, read: true } : n))
+      );
     } catch {
       toast.error('Failed to mark as read');
     }
@@ -72,6 +74,7 @@ export const NotificationCenter = () => {
           )}
         </Button>
       </SheetTrigger>
+
       <SheetContent className="w-[380px]">
         <SheetHeader>
           <div className="flex items-center justify-between">
@@ -79,6 +82,7 @@ export const NotificationCenter = () => {
               <Bell className="w-4 h-4" />
               Notifications
             </SheetTitle>
+
             {unreadCount > 0 && (
               <Button variant="ghost" size="sm" onClick={handleMarkAllRead} className="text-xs">
                 <CheckCheck className="w-3 h-3 mr-1" /> Mark all read
@@ -98,18 +102,13 @@ export const NotificationCenter = () => {
             </p>
           ) : (
             <div className="space-y-1">
-  {notifications?.filter(Boolean).map((notification) => {
-    const Icon = typeIcons[notification?.type || "system"] || Bell;
+              {notifications?.filter(Boolean).map((notification) => {
+                const Icon = typeIcons[notification?.type || "system"] || Bell;
 
-    return (
-      <div key={notification.id}>
-        <Icon className="w-4 h-4" />
-        <p>{notification.title}</p>
-      </div>
-    );
-  })}
-</div>
-      className={`p-3 rounded-md cursor-pointer transition-colors ${
+                return (
+                  <div
+                    key={notification.id}
+                    className={`p-3 rounded-md cursor-pointer transition-colors ${
                       notification.read
                         ? 'hover:bg-muted/50'
                         : 'bg-primary/5 hover:bg-primary/10 border-l-2 border-primary'
@@ -117,14 +116,21 @@ export const NotificationCenter = () => {
                     onClick={() => !notification.read && handleMarkRead(notification.id)}
                   >
                     <div className="flex gap-3">
-                      <Icon className={`w-4 h-4 mt-0.5 ${notification.read ? 'text-muted-foreground' : 'text-primary'}`} />
+                      <Icon
+                        className={`w-4 h-4 mt-0.5 ${
+                          notification.read ? 'text-muted-foreground' : 'text-primary'
+                        }`}
+                      />
+
                       <div className="flex-1 min-w-0">
                         <p className={`text-sm ${notification.read ? '' : 'font-medium'}`}>
                           {notification.title}
                         </p>
+
                         <p className="text-xs text-muted-foreground mt-0.5 truncate">
                           {notification.description}
                         </p>
+
                         <span className="text-[10px] text-muted-foreground">
                           {new Date(notification.timestamp).toLocaleString()}
                         </span>
