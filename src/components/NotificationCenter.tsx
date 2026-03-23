@@ -98,11 +98,11 @@ export const NotificationCenter = () => {
             </p>
           ) : (
             <div className="space-y-1">
-              notifications?.filter(Boolean).map(notification => {
-                const Icon = typeIcons[notification?.type || "system"] || Bell;
+  {notifications?.filter(Boolean).map((notification) => {
+    const Icon = typeIcons[notification?.type || "system"] || Bell;
 
-                return (
-                  <div
+    return (
+      <div
                     key={notification.id}
                     className={`p-3 rounded-md cursor-pointer transition-colors ${
                       notification.read
