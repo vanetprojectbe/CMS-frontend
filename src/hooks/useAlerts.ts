@@ -100,10 +100,9 @@ export function useAlerts() {
 
   useEffect(() => {
     fetchAlerts();
-    connectWs();
+    //connectWs();
 
     return () => {
-      wsRef.current?.close();
       if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
     };
   }, [fetchAlerts, connectWs]);
