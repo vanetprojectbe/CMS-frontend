@@ -98,8 +98,8 @@ export const NotificationCenter = () => {
             </p>
           ) : (
             <div className="space-y-1">
-              {notifications.map(notification => {
-                const Icon = typeIcons[notification.type] || Bell;
+              {notifications?.filter(Boolean).map(notification => {
+                const Icon = typeIcons[notification?.type || "system"] || Bell;
 
                 return (
                   <div
