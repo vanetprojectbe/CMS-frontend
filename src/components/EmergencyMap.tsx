@@ -2,6 +2,8 @@
 // Leaflet map centered on India (Mumbai default).
 // Renders a marker for each accident with colour by severity.
 
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { useEffect, useRef } from "react";
 import { AccidentAlert } from "@/hooks/useAlerts";
 
