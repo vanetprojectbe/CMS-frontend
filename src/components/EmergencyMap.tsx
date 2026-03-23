@@ -1,216 +1,132 @@
-import { useEffect, useRef, useState } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import { AccidentAlert } from '@/types/emergency';
+// src/components/EmergencyMap.tsx
+// Leaflet map centered on India (Mumbai default).
+// Renders a marker for each accident with colour by severity.
 
-interface EmergencyMapProps {
+import { useEffect, useRef } from "react";
+import { AccidentAlert } from "@/hooks/useAlerts";
+
+// Leaflet is loaded via CDN — add to index.html if not already present:
+//   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+//   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+declare const L: any;
+
+interface Props {
   alerts: AccidentAlert[];
   selectedAlert?: AccidentAlert;
   onSelectAlert: (alert: AccidentAlert) => void;
 }
 
-const getSeverityColor = (severity: AccidentAlert['severity']) => {
-  switch (severity) {
-    case 'critical': return '#ef4444';
-    case 'warning': return '#f59e0b';
-    default: return '#6b7280';
-  }
+const SEVERITY_COLOR: Record<string, string> = {
+  CRITICAL: "#E24B4A",
+  MAJOR:    "#EF9F27",
+  MINOR:    "#378ADD",
+  UNKNOWN:  "#888780",
 };
 
-export const EmergencyMap = ({ alerts, selectedAlert, onSelectAlert }: EmergencyMapProps) => {
-  const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<L.Map | null>(null);
-  const markersRef = useRef<L.LayerGroup | null>(null);
-  const locationMarkerRef = useRef<L.Marker | null>(null);
-  const locationCircleRef = useRef<L.Circle | null>(null);
-  const [locating, setLocating] = useState(false);
-  const [locationError, setLocationError] = useState<string | null>(null);
+// Default center — Mumbai, India
+const DEFAULT_LAT = 19.076;
+const DEFAULT_LON = 72.877;
+const DEFAULT_ZOOM = 11;
 
-  // Initialize map
+export function EmergencyMap({ alerts, selectedAlert, onSelectAlert }: Props) {
+  const mapRef     = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
+  const divRef     = useRef<HTMLDivElement>(null);
+
+  // Initialise map once
   useEffect(() => {
-    if (!mapRef.current || mapInstanceRef.current) return;
+    if (!divRef.current || mapRef.current) return;
 
-    const map = L.map(mapRef.current, {
-      center: [40.7580, -73.9855],
-      zoom: 13,
-      zoomControl: true,
+    mapRef.current = L.map(divRef.current, {
+      center: [DEFAULT_LAT, DEFAULT_LON],
+      zoom:   DEFAULT_ZOOM,
     });
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    }).addTo(map);
-
-    markersRef.current = L.layerGroup().addTo(map);
-    mapInstanceRef.current = map;
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap contributors",
+    }).addTo(mapRef.current);
 
     return () => {
-      map.remove();
-      mapInstanceRef.current = null;
+      mapRef.current?.remove();
+      mapRef.current = null;
     };
   }, []);
 
-  // Update markers when alerts change
+  // Update markers whenever alerts change
   useEffect(() => {
-    if (!markersRef.current || !mapInstanceRef.current) return;
+    if (!mapRef.current) return;
 
-    markersRef.current.clearLayers();
+    // Remove old markers
+    markersRef.current.forEach(m => m.remove());
+    markersRef.current = [];
 
-    alerts.forEach((alert) => {
-      const color = getSeverityColor(alert.severity);
-      const isSelected = selectedAlert?.id === alert.id;
-      const size = isSelected ? 18 : 12;
-      const border = isSelected ? 4 : 3;
+    alerts.forEach(alert => {
+      if (!alert.latitude || !alert.longitude) return;
 
-      const icon = L.divIcon({
-        className: '',
+      const color  = SEVERITY_COLOR[alert.severity] || SEVERITY_COLOR.UNKNOWN;
+      const icon   = L.divIcon({
+        className: "",
         html: `<div style="
-          width: ${size}px; height: ${size}px;
-          background: ${color};
-          border: ${border}px solid white;
-          border-radius: 50%;
-          box-shadow: 0 0 8px ${color}88;
-          cursor: pointer;
+          width:18px;height:18px;border-radius:50%;
+          background:${color};border:2px solid #fff;
+          box-shadow:0 0 6px ${color}88;
         "></div>`,
-        iconSize: [size + border * 2, size + border * 2],
-        iconAnchor: [(size + border * 2) / 2, (size + border * 2) / 2],
+        iconSize:   [18, 18],
+        iconAnchor: [9, 9],
       });
 
-      const marker = L.marker([alert.location.lat, alert.location.lng], { icon })
-        .addTo(markersRef.current!);
+      const marker = L.marker([alert.latitude, alert.longitude], { icon })
+        .addTo(mapRef.current)
+        .bindPopup(`
+          <div style="min-width:200px;font-family:sans-serif;font-size:13px">
+            <b style="color:${color}">${alert.severity}</b>
+            &nbsp;•&nbsp;${alert.status.toUpperCase()}<br/>
+            <b>Vehicle:</b> ${alert.vehicleId || "Unknown"}<br/>
+            <b>RSU:</b> ${alert.rsuId || "—"}<br/>
+            ${alert.address
+              ? `<b>Address:</b> ${alert.address}<br/>`
+              : `<b>Lat/Lon:</b> ${alert.latitude.toFixed(5)}, ${alert.longitude.toFixed(5)}<br/>`
+            }
+            ${alert.eam?.acc != null
+              ? `<b>Acc:</b> ${alert.eam.acc.toFixed(1)} m/s²
+                 &nbsp;<b>Gyro:</b> ${alert.eam.gyro?.toFixed(0)}°/s<br/>`
+              : ""
+            }
+            <b>Time:</b> ${new Date(alert.timestamp).toLocaleString()}<br/>
+            <a href="https://maps.google.com/?q=${alert.latitude},${alert.longitude}"
+               target="_blank" style="color:#378ADD">Open in Google Maps</a>
+          </div>
+        `)
+        .on("click", () => onSelectAlert(alert));
 
-      marker.bindPopup(`
-        <div style="font-size: 13px; min-width: 180px;">
-          <div style="font-weight: bold; font-size: 15px; margin-bottom: 4px;">${alert.id}</div>
-          <div><strong>Location:</strong> ${alert.address}</div>
-          <div><strong>Vehicle:</strong> ${alert.vehicle.id} (${alert.vehicle.type})</div>
-          <div><strong>Speed:</strong> ${alert.vehicle.speed} mph</div>
-          <div><strong>Severity:</strong> <span style="color: ${color}">${alert.severity}</span></div>
-          <div><strong>Status:</strong> ${alert.status}</div>
-          <div><strong>Time:</strong> ${alert.timestamp.toLocaleTimeString()}</div>
-        </div>
-      `);
-
-      marker.on('click', () => onSelectAlert(alert));
+      markersRef.current.push(marker);
     });
-  }, [alerts, selectedAlert, onSelectAlert]);
 
-  // Fly to selected alert
-  useEffect(() => {
-    if (selectedAlert && mapInstanceRef.current) {
-      mapInstanceRef.current.flyTo(
-        [selectedAlert.location.lat, selectedAlert.location.lng],
-        15,
-        { duration: 0.8 }
-      );
+    // If there are alerts, fly to the most recent one
+    if (alerts.length > 0) {
+      const latest = alerts[0];
+      if (latest.latitude && latest.longitude) {
+        mapRef.current.flyTo([latest.latitude, latest.longitude], 13, {
+          animate: true, duration: 1.5
+        });
+      }
     }
+  }, [alerts, onSelectAlert]);
+
+  // Pan to selected alert
+  useEffect(() => {
+    if (!mapRef.current || !selectedAlert?.latitude) return;
+    mapRef.current.flyTo(
+      [selectedAlert.latitude, selectedAlert.longitude], 15,
+      { animate: true, duration: 1 }
+    );
   }, [selectedAlert]);
 
-  // Locate user
-  const locateUser = () => {
-    if (!mapInstanceRef.current || !navigator.geolocation) {
-      setLocationError('Geolocation not supported');
-      return;
-    }
-    setLocating(true);
-    setLocationError(null);
-
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude, accuracy } = pos.coords;
-        const map = mapInstanceRef.current!;
-
-        // Remove old markers
-        if (locationMarkerRef.current) map.removeLayer(locationMarkerRef.current);
-        if (locationCircleRef.current) map.removeLayer(locationCircleRef.current);
-
-        // Accuracy circle
-        locationCircleRef.current = L.circle([latitude, longitude], {
-          radius: accuracy,
-          color: 'hsl(217, 91%, 60%)',
-          fillColor: 'hsl(217, 91%, 60%)',
-          fillOpacity: 0.1,
-          weight: 1,
-        }).addTo(map);
-
-        // User dot
-        const icon = L.divIcon({
-          className: '',
-          html: `<div style="
-            width: 16px; height: 16px;
-            background: hsl(217, 91%, 60%);
-            border: 3px solid white;
-            border-radius: 50%;
-            box-shadow: 0 0 12px hsl(217, 91%, 60%, 0.6);
-          "></div>`,
-          iconSize: [22, 22],
-          iconAnchor: [11, 11],
-        });
-
-        locationMarkerRef.current = L.marker([latitude, longitude], { icon })
-          .bindPopup('<strong>Your Location</strong>')
-          .addTo(map);
-
-        map.flyTo([latitude, longitude], 14, { duration: 1 });
-        setLocating(false);
-      },
-      (err) => {
-        setLocationError(err.message);
-        setLocating(false);
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  };
-
   return (
-    <div className="relative w-full h-full rounded-lg overflow-hidden border border-border">
-      <div ref={mapRef} className="w-full h-full" />
-
-      {/* Locate Me button */}
-      <button
-        onClick={locateUser}
-        disabled={locating}
-        className="absolute bottom-4 left-4 z-[1000] bg-card/95 backdrop-blur-sm border border-border rounded-lg px-3 py-2 shadow-lg text-xs font-medium hover:bg-accent/20 transition-colors flex items-center gap-2 disabled:opacity-50"
-        title="Detect my location"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={locating ? 'animate-spin' : ''}>
-          <circle cx="12" cy="12" r="3" /><path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
-        </svg>
-        {locating ? 'Locating…' : 'My Location'}
-      </button>
-
-      {locationError && (
-        <div className="absolute bottom-4 left-40 z-[1000] bg-card/95 border border-warning/30 rounded-lg px-3 py-2 text-xs text-warning shadow-lg">
-          ⚠ {locationError}
-        </div>
-      )}
-
-      {/* Legend */}
-      <div className="absolute top-4 right-4 z-[1000] bg-card/95 backdrop-blur-sm border border-border rounded-lg p-3 shadow-lg">
-        <h4 className="text-xs font-bold mb-2 uppercase tracking-wide">Legend</h4>
-        <div className="space-y-1 text-xs">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-critical" />
-            <span>Critical</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-warning" />
-            <span>Warning</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-muted-foreground" />
-            <span>Moderate</span>
-          </div>
-        </div>
-      </div>
-
-      {alerts.length === 0 && (
-        <div className="absolute inset-0 z-[1000] flex items-center justify-center pointer-events-none">
-          <div className="bg-card/90 backdrop-blur-sm border border-border rounded-lg px-6 py-4 text-center">
-            <p className="text-muted-foreground text-sm">No active incidents</p>
-            <p className="text-xs text-muted-foreground mt-1">Alerts will appear here in real-time</p>
-          </div>
-        </div>
-      )}
-    </div>
+    <div
+      ref={divRef}
+      style={{ width: "100%", height: "100%", minHeight: "400px" }}
+    />
   );
-};
+}
