@@ -5,8 +5,8 @@ const API_BASE = "https://cms-backend-lmof.onrender.com";
 export const API = {
   login:     `${API_BASE}/api/auth/login`,
   register:  `${API_BASE}/api/auth/register`,
-  incidents: `${API_BASE}/api/accidents`,   // FIXED: was /api/accident (missing s)
-  accidents: `${API_BASE}/api/accidents`,   // FIXED: was /api/accident (missing s)
+  incidents: `${API_BASE}/api/accident`,
+  accident:  `${API_BASE}/api/accident`,
   alerts:    `${API_BASE}/api/alerts`,
   rsu:       `${API_BASE}/api/rsu`,
   users:     `${API_BASE}/api/admin/users`,
@@ -31,6 +31,7 @@ export function isLoggedIn() {
 }
 
 // ── Authenticated fetch wrapper ───────────────────────────────────────────────
+// Use this for ALL requests instead of raw fetch()
 export async function apiFetch(url, options = {}) {
   const token = getToken();
 
@@ -43,6 +44,7 @@ export async function apiFetch(url, options = {}) {
     }
   });
 
+  // Token expired or invalid — log out and redirect to login
   if (res.status === 401) {
     clearToken();
     window.location.href = "/login";
