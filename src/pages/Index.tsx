@@ -29,8 +29,10 @@ const Index = () => {
     setSelectedAlert(alert);
   };
 
-  const activeAlerts = alerts.filter((a) => a.status === 'new');
-  const dispatchedCount = alerts.filter((a) => a.status === 'dispatched').length;
+  const safeAlerts = (alerts || []).filter(Boolean);
+
+const activeAlerts = safeAlerts.filter((a) => a.status === 'new');
+const dispatchedCount = safeAlerts.filter((a) => a.status === 'dispatched').length;
 
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem)]">
