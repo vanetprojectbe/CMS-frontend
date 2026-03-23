@@ -41,7 +41,7 @@ export function useAlerts() {
       .replace(/^http/, 'ws')
       .replace(/\/api$/, '/ws');
 
-    //const ws = new WebSocket(wsUrl);
+    const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
     ws.onopen = () => {
