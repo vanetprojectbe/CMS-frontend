@@ -98,7 +98,7 @@ export const NotificationCenter = () => {
             </p>
           ) : (
             <div className="space-y-1">
-              {notifications?.filter(Boolean).map(notification => {
+              notifications?.filter(Boolean).map(notification => {
                 const Icon = typeIcons[notification?.type || "system"] || Bell;
 
                 return (
