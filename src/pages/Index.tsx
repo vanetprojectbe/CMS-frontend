@@ -9,12 +9,6 @@ import { toast } from 'sonner';
 import { useAlerts } from '@/hooks/useAlerts';
 import { useState } from 'react';
 
-<head>
-  
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-
-</head>
 
 const Index = () => {
   const { alerts, isConnected, isLoading, error, dispatchAlert } = useAlerts();
