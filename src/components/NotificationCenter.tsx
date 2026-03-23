@@ -102,9 +102,14 @@ export const NotificationCenter = () => {
     const Icon = typeIcons[notification?.type || "system"] || Bell;
 
     return (
-      <div
-                    key={notification.id}
-                    className={`p-3 rounded-md cursor-pointer transition-colors ${
+      <div key={notification.id}>
+        <Icon className="w-4 h-4" />
+        <p>{notification.title}</p>
+      </div>
+    );
+  })}
+</div>
+      className={`p-3 rounded-md cursor-pointer transition-colors ${
                       notification.read
                         ? 'hover:bg-muted/50'
                         : 'bg-primary/5 hover:bg-primary/10 border-l-2 border-primary'
