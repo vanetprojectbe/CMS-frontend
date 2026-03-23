@@ -45,14 +45,14 @@ export async function apiFetch(url, options = {}) {
   });
 
   // Token expired or invalid — log out and redirect to login
-  if (res.status === 401) {
-    clearToken();
-    window.location.href = "/login";
-    return null;
+  //if (res.status === 401) {
+    //clearToken();
+    //window.location.href = "/login";
+    //return null;
   }
 
   return res;
-}
+//}
 
 // ── Login helper ──────────────────────────────────────────────────────────────
 export async function login(username, password) {
